@@ -140,6 +140,20 @@ void Db::all_tables(std::vector<std::string> &table_names) const
   }
 }
 
+RC Db::drop_table(const char* table_name){
+  auto it=opened_tables_.find(table_name);
+  if(it==opened_tables_.end()){
+    return SCHEMA_TABLE_NOT_EXIST;
+  }
+  Table* table=it->second;
+  RC rc=table->destroy(path_.c_str());
+  if(rc!=RC::SUCCESS) retrun rc;
+
+  opened_tables_.erase(it);
+  delete table;
+  return RC::SUCCESS;
+}
+
 RC Db::sync()
 {
   RC rc = RC::SUCCESS;
